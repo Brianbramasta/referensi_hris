@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Component Builder</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-800">
+
+    <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- LEFT: Configuration Panel -->
+        <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-gray-200 p-6 self-start">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                Component Configurator
+            </h2>
+            <p class="text-sm text-gray-500 mb-6">Tambahkan field baru ke dalam komponen kustom Anda mirip seperti di Strapi.</p>
+
+            <form id="fieldForm" class="space-y-4">
+                <!-- Select Type -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Field Type</label>
+                    <select id="fieldType" class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none transition">
+                        <option value="text">Input Text</option>
+                        <option value="textarea">Textarea</option>
+                        <option value="image">Image Upload</option>
+                        <option value="number">Number</option>
+                    </select>
+                </div>
+
+                <!-- Title / Label -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Field Label / Title</label>
+                    <input type="text" id="fieldTitle" placeholder="Contoh: Nama Lengkap, Banner Utama" required
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none transition">
+                </div>
+
+                <!-- Placeholder -->
+                <div id="placeholderContainer">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Placeholder</label>
+                    <input type="text" id="fieldPlaceholder" placeholder="Masukkan teks placeholder..."
+                        class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none transition">
+                </div>
+
+                <!-- Validation Settings -->
+                <div class="pt-2">
+                    <label class="inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="fieldRequired" class="sr-only peer">
+                        <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                        <span class="ms-3 text-sm font-medium text-gray-700">Required Field</span>
+                    </label>
+                </div>
+
+                <!-- Add Button -->
+                <button type="submit" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg text-sm transition flex items-center justify-center gap-2 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Tambah Field ke Komponen
+                </button>
+            </form>
+        </div>
+
+        <!-- RIGHT: Live Preview & Schema Generation -->
+        <div class="lg:col-span-7 space-y-6">
+            
+            <!-- Component Preview Container -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[300px] flex flex-col">
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    Component Live Preview
+                </h2>
+                
+                <!-- Dynamic Fields Target -->
+                <div id="previewContainer" class="space-y-5 flex-grow">
+                    <!-- Placeholder state if empty -->
+                    <div id="emptyState" class="text-center py-12 text-gray-400 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl h-full">
+                        <svg class="w-12 h-12 stroke-1 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <p class="text-sm">Belum ada field yang dibuat. Gunakan form di kiri untuk menambahkan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSON Schema Outputs (Sangat berguna untuk integrasi backend) -->
+            <div class="bg-gray-900 text-gray-200 rounded-xl shadow-sm p-6 overflow-hidden">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-sm font-semibold tracking-wide uppercase text-gray-400 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        Generated Component Schema (Strapi Style)
+                    </h3>
+                </div>
+                <pre id="schemaOutput" class="text-xs font-mono overflow-x-auto text-emerald-400 bg-gray-950 p-4 rounded-lg max-h-48">[]</pre>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Logic Engine -->
+    <script>
+        // State management untuk menyimpan struktur komponen
+        let componentFields = [];
+
+        // DOM Elements
+        const fieldForm = document.getElementById('fieldForm');
+        const fieldType = document.getElementById('fieldType');
+        const fieldTitle = document.getElementById('fieldTitle');
+        const fieldPlaceholder = document.getElementById('fieldPlaceholder');
+        const fieldRequired = document.getElementById('fieldRequired');
+        const placeholderContainer = document.getElementById('placeholderContainer');
+        const previewContainer = document.getElementById('previewContainer');
+        const emptyState = document.getElementById('emptyState');
+        const schemaOutput = document.getElementById('schemaOutput');
+
+        // Sembunyikan input placeholder jika memilih tipe image
+        fieldType.addEventListener('change', (e) => {
+            if (e.target.value === 'image') {
+                placeholderContainer.classList.add('hidden');
+            } else {
+                placeholderContainer.classList.remove('hidden');
+            }
+        });
+
+        // Handle form submit (Tambah field)
+        fieldForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newField = {
+                id: 'field_' + Date.now(),
+                type: fieldType.value,
+                title: fieldTitle.value,
+                placeholder: fieldType.value === 'image' ? '' : fieldPlaceholder.value,
+                required: fieldRequired.checked
+            };
+
+            componentFields.push(newField);
+            
+            // Reset form
+            fieldTitle.value = '';
+            fieldPlaceholder.value = '';
+            fieldRequired.checked = false;
+
+            renderComponent();
+        });
+
+        // Hapus field berdasarkan ID
+        function deleteField(id) {
+            componentFields = componentFields.filter(field => field.id !== id);
+            renderComponent();
+        }
+
+        // Render UI Preview dan JSON Schema
+        function renderComponent() {
+            // Update Schema Output
+            schemaOutput.textContent = JSON.stringify(componentFields, null, 2);
+
+            // Handle Empty State
+            if (componentFields.length === 0) {
+                emptyState.classList.remove('hidden');
+                // Hapus sisa render field sebelumnya
+                const oldFields = previewContainer.querySelectorAll('.dynamic-field-wrapper');
+                oldFields.forEach(el => el.remove());
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            // Hapus list lama agar tidak duplikat saat re-render
+            const oldFields = previewContainer.querySelectorAll('.dynamic-field-wrapper');
+            oldFields.forEach(el => el.remove());
+
+            // Render setiap field berdasarkan tipenya
+            componentFields.forEach((field) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'dynamic-field-wrapper relative group bg-gray-50 border border-gray-200 p-4 rounded-xl transition hover:border-indigo-200';
+                
+                // Header Field (Label & Tombol Aksi)
+                let fieldHeaderHTML = `
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-sm font-medium text-gray-700">
+                            ${field.title} 
+                            ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                            <span class="text-xs font-normal text-gray-400 ml-1">(${field.type})</span>
+                        </label>
+                        <button onclick="deleteField('${field.id}')" type="button" class="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-1 rounded-md hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+                `;
+
+                let inputHTML = '';
+
+                // Switch berdasarkan tipe field yang dipilih
+                switch (field.type) {
+                    case 'text':
+                        inputHTML = `<input type="text" placeholder="${field.placeholder}" ${field.required ? 'required' : ''} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none shadow-sm">`;
+                        break;
+                    case 'textarea':
+                        inputHTML = `<textarea placeholder="${field.placeholder}" rows="3" ${field.required ? 'required' : ''} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none shadow-sm"></textarea>`;
+                        break;
+                    case 'number':
+                        inputHTML = `<input type="number" placeholder="${field.placeholder}" ${field.required ? 'required' : ''} class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none shadow-sm">`;
+                        break;
+                    case 'image':
+                        inputHTML = `
+                            <div class="flex items-center justify-center w-full">
+                                <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 transition">
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg class="w-6 h-6 mb-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        <p class="text-xs text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                    </div>
+                                    <input type="file" accept="image/*" class="hidden" ${field.required ? 'required' : ''} />
+                                </label>
+                            </div>
+                        `;
+                        break;
+                }
+
+                wrapper.innerHTML = fieldHeaderHTML + inputHTML;
+                previewContainer.appendChild(wrapper);
+            });
+        }
+    </script>
+</body>
+</html>
