@@ -7,9 +7,30 @@
     <!-- Menggunakan CDN Tailwind CSS versi 3 -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
 
-    <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-lg border border-gray-100">
+    <header class="border-b border-[#EDECE9] bg-white sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-[#37352F] flex items-center justify-center text-white font-bold text-sm">
+                    H
+                </div>
+                <div>
+                    <span class="font-semibold tracking-tight block">HRIS Hub</span>
+                    <span class="text-xs text-[#787774] -mt-1 block">Component Design System</span>
+                </div>
+            </div>
+            <nav class="flex items-center space-x-6 text-sm font-medium text-[#787774]">
+                <a href="#" class="text-[#37352F] hover:text-black transition">Overview</a>
+                <a href="#" class="hover:text-black transition">Docs</a>
+                <span class="h-4 w-px bg-[#EDECE9]"></span>
+                <span class="text-xs bg-[#F1F1EF] text-[#37352F] px-2 py-1 rounded border border-[#EDECE9]">v1.0.0</span>
+            </nav>
+        </div>
+    </header>
+
+    <div class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl shadow-md w-full max-w-lg border border-gray-100">
         <h2 class="text-xl font-bold text-gray-900 mb-2">⚙️ Set Parameter Threshold</h2>
         <p class="text-sm text-gray-500 mb-6">Tentukan batas nilai minimum untuk setiap kategori evaluasi.</p>
 
