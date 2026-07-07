@@ -1,35 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Component Builder</title>
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50 min-h-screen font-sans antialiased text-gray-800">
+---
+import Layout from '../../layouts/Layout.astro';
+---
 
-    <header class="border-b border-[#EDECE9] bg-white sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-[#37352F] flex items-center justify-center text-white font-bold text-sm">
-                    H
-                </div>
-                <div>
-                    <span class="font-semibold tracking-tight block">HRIS Hub</span>
-                    <span class="text-xs text-[#787774] -mt-1 block">Component Design System</span>
-                </div>
-            </div>
-            <nav class="flex items-center space-x-6 text-sm font-medium text-[#787774]">
-                <a href="#" class="text-[#37352F] hover:text-black transition">Overview</a>
-                <a href="#" class="hover:text-black transition">Docs</a>
-                <span class="h-4 w-px bg-[#EDECE9]"></span>
-                <span class="text-xs bg-[#F1F1EF] text-[#37352F] px-2 py-1 rounded border border-[#EDECE9]">v1.0.0</span>
-            </nav>
-        </div>
-    </header>
-
-    <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
+<Layout title="Dynamic Component Builder">
+    <div class="p-6 flex-1">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         <!-- LEFT: Configuration Panel -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-gray-200 p-6 self-start">
@@ -115,62 +90,70 @@
 
         </div>
     </div>
+        </div>
+    </div>
 
-    <!-- Logic Engine -->
     <script>
         // State management untuk menyimpan struktur komponen
-        let componentFields = [];
+        let componentFields: any[] = [];
 
         // DOM Elements
-        const fieldForm = document.getElementById('fieldForm');
-        const fieldType = document.getElementById('fieldType');
-        const fieldTitle = document.getElementById('fieldTitle');
-        const fieldPlaceholder = document.getElementById('fieldPlaceholder');
-        const fieldRequired = document.getElementById('fieldRequired');
+        const fieldForm = document.getElementById('fieldForm') as HTMLFormElement;
+        const fieldType = document.getElementById('fieldType') as HTMLSelectElement;
+        const fieldTitle = document.getElementById('fieldTitle') as HTMLInputElement;
+        const fieldPlaceholder = document.getElementById('fieldPlaceholder') as HTMLInputElement;
+        const fieldRequired = document.getElementById('fieldRequired') as HTMLInputElement;
         const placeholderContainer = document.getElementById('placeholderContainer');
         const previewContainer = document.getElementById('previewContainer');
         const emptyState = document.getElementById('emptyState');
         const schemaOutput = document.getElementById('schemaOutput');
 
         // Sembunyikan input placeholder jika memilih tipe image
-        fieldType.addEventListener('change', (e) => {
-            if (e.target.value === 'image') {
-                placeholderContainer.classList.add('hidden');
-            } else {
-                placeholderContainer.classList.remove('hidden');
-            }
-        });
+        if (fieldType && placeholderContainer) {
+            fieldType.addEventListener('change', (e: Event) => {
+                const target = e.target as HTMLSelectElement;
+                if (target.value === 'image') {
+                    placeholderContainer.classList.add('hidden');
+                } else {
+                    placeholderContainer.classList.remove('hidden');
+                }
+            });
+        }
 
         // Handle form submit (Tambah field)
-        fieldForm.addEventListener('submit', (e) => {
-            e.preventDefault();
+        if (fieldForm && fieldType && fieldTitle && fieldPlaceholder && fieldRequired) {
+            fieldForm.addEventListener('submit', (e: Event) => {
+                e.preventDefault();
 
-            const newField = {
-                id: 'field_' + Date.now(),
-                type: fieldType.value,
-                title: fieldTitle.value,
-                placeholder: fieldType.value === 'image' ? '' : fieldPlaceholder.value,
-                required: fieldRequired.checked
-            };
+                const newField = {
+                    id: 'field_' + Date.now(),
+                    type: fieldType.value,
+                    title: fieldTitle.value,
+                    placeholder: fieldType.value === 'image' ? '' : fieldPlaceholder.value,
+                    required: fieldRequired.checked
+                };
 
-            componentFields.push(newField);
-            
-            // Reset form
-            fieldTitle.value = '';
-            fieldPlaceholder.value = '';
-            fieldRequired.checked = false;
+                componentFields.push(newField);
+                
+                // Reset form
+                fieldTitle.value = '';
+                fieldPlaceholder.value = '';
+                fieldRequired.checked = false;
 
-            renderComponent();
-        });
+                renderComponent();
+            });
+        }
 
         // Hapus field berdasarkan ID
-        function deleteField(id) {
+        function deleteField(id: string) {
             componentFields = componentFields.filter(field => field.id !== id);
             renderComponent();
         }
 
         // Render UI Preview dan JSON Schema
         function renderComponent() {
+            if (!schemaOutput || !emptyState || !previewContainer) return;
+            
             // Update Schema Output
             schemaOutput.textContent = JSON.stringify(componentFields, null, 2);
 
@@ -241,5 +224,4 @@
             });
         }
     </script>
-</body>
-</html>
+</Layout>

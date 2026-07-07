@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="HRIS Component Hub">
+    <div class="max-w-4xl mx-auto px-6 py-16 w-full">
+        
+        <!-- Hero Section -->
+        <section class="mb-16">
+            <div class="inline-flex items-center space-x-2 bg-[#F1F1EF] px-3 py-1 rounded-full text-xs font-medium text-[#787774] mb-6 border border-[#EDECE9]">
+                <span>✨ Utilities & Reference</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-[#37352F] mb-4">
+                HRIS Component Hub
+            </h1>
+            <p class="text-lg text-[#787774] leading-relaxed max-w-2xl">
+                Pusat referensi komponen UI/UX dan standar logika untuk proyek HRIS. Dibuat khusus untuk membantu PM mendesain alur (flow) awal dan desainer dalam menginisiasi UI secara konsisten.
+            </p>
+        </section>
+
+        <!-- Component Categories Preview -->
+        <section>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/components/create-component-1" class="group p-6 bg-white border border-[#EDECE9] rounded-xl shadow-sm hover:border-[#ACABA9] transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#E8F4FE] text-[#1D4ED8] flex items-center justify-center mb-4 text-lg">
+                            📊
+                        </div>
+                        <h3 class="font-semibold text-base text-[#37352F] group-hover:text-black">
+                            Dynamic Component Builder
+                        </h3>
+                        <p class="text-sm text-[#787774] mt-1 leading-relaxed">
+                            Builder komponen dinamis dengan field kustom mirip Strapi.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center text-xs font-medium text-[#787774] group-hover:text-[#37352F]">
+                        <span>Lihat komponen</span>
+                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+
+                <a href="/components/create-component-2" class="group p-6 bg-white border border-[#EDECE9] rounded-xl shadow-sm hover:border-[#ACABA9] transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center mb-4 text-lg">
+                            🧮
+                        </div>
+                        <h3 class="font-semibold text-base text-[#37352F] group-hover:text-black">
+                            Strapi-like Component Builder
+                        </h3>
+                        <p class="text-sm text-[#787774] mt-1 leading-relaxed">
+                            Builder komponen dengan fitur lengkap dan export schema.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center text-xs font-medium text-[#787774] group-hover:text-[#37352F]">
+                        <span>Lihat komponen</span>
+                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+
+                <a href="/threshold" class="group p-6 bg-white border border-[#EDECE9] rounded-xl shadow-sm hover:border-[#ACABA9] transition-all duration-200 flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-lg bg-[#ECFDF5] text-[#059669] flex items-center justify-center mb-4 text-lg">
+                            ⚙️
+                        </div>
+                        <h3 class="font-semibold text-base text-[#37352F] group-hover:text-black">
+                            Threshold Settings
+                        </h3>
+                        <p class="text-sm text-[#787774] mt-1 leading-relaxed">
+                            Pengaturan parameter threshold kategori evaluasi.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center text-xs font-medium text-[#787774] group-hover:text-[#37352F]">
+                        <span>Lihat komponen</span>
+                        <svg class="w-3 h-3 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </a>
+            </div>
+        </section>
+    </div>
+</Layout>
