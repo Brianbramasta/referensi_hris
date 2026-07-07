@@ -416,5 +416,14 @@ import Layout from '../../layouts/Layout.astro';
         downloadAnchor.click();
         downloadAnchor.remove();
       }
+
+      // Attach functions to window for global onclick handler access
+      (window as any).openAddFieldModal = openAddFieldModal;
+      (window as any).openEditFieldModal = openEditFieldModal;
+      (window as any).closeFieldModal = closeFieldModal;
+      (window as any).toggleFieldSpecificOptions = toggleFieldSpecificOptions;
+      (window as any).saveField = saveField;
+      (window as any).deleteField = deleteField;
+      (window as any).copySchema = copySchema;
     </script>
 </Layout>
