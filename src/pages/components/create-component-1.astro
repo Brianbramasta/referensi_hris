@@ -12,6 +12,11 @@ import Layout from '../../layouts/Layout.astro';
                 <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                 Component Configurator
             </h2>
+            <div class="mb-6">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Component Name (Parent Title)</label>
+                <input type="text" id="componentName" value="My Component" placeholder="Enter component name..."
+                    class="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-indigo-500 focus:bg-white focus:outline-none transition font-medium">
+            </div>
             <p class="text-sm text-gray-500 mb-6">Tambahkan field baru ke dalam komponen kustom Anda mirip seperti di Strapi.</p>
 
             <form id="fieldForm" class="space-y-4">
@@ -64,7 +69,7 @@ import Layout from '../../layouts/Layout.astro';
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 min-h-[300px] flex flex-col">
                 <h2 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
                     <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    Component Live Preview
+                    <span id="previewTitle">My Component</span>
                 </h2>
                 
                 <!-- Dynamic Fields Target -->
@@ -96,6 +101,7 @@ import Layout from '../../layouts/Layout.astro';
     <script>
         // State management untuk menyimpan struktur komponen
         let componentFields: any[] = [];
+        let draggedItem: string | null = null;
 
         // DOM Elements
         const fieldForm = document.getElementById('fieldForm') as HTMLFormElement;
@@ -107,6 +113,8 @@ import Layout from '../../layouts/Layout.astro';
         const previewContainer = document.getElementById('previewContainer');
         const emptyState = document.getElementById('emptyState');
         const schemaOutput = document.getElementById('schemaOutput');
+        const componentName = document.getElementById('componentName') as HTMLInputElement;
+        const previewTitle = document.getElementById('previewTitle');
 
         // Sembunyikan input placeholder jika memilih tipe image
         if (fieldType && placeholderContainer) {
@@ -117,6 +125,14 @@ import Layout from '../../layouts/Layout.astro';
                 } else {
                     placeholderContainer.classList.remove('hidden');
                 }
+            });
+        }
+
+        // Update component name in preview when changed
+        if (componentName && previewTitle) {
+            componentName.addEventListener('input', (e: Event) => {
+                const target = e.target as HTMLInputElement;
+                previewTitle.textContent = target.value || 'My Component';
             });
         }
 
@@ -173,18 +189,68 @@ import Layout from '../../layouts/Layout.astro';
             oldFields.forEach(el => el.remove());
 
             // Render setiap field berdasarkan tipenya
-            componentFields.forEach((field) => {
+            componentFields.forEach((field, index) => {
                 const wrapper = document.createElement('div');
-                wrapper.className = 'dynamic-field-wrapper relative group bg-gray-50 border border-gray-200 p-4 rounded-xl transition hover:border-indigo-200';
+                wrapper.className = 'dynamic-field-wrapper relative group bg-gray-50 border border-gray-200 p-4 rounded-xl transition hover:border-indigo-200 cursor-move';
+                wrapper.setAttribute('draggable', 'true');
+                wrapper.dataset.id = field.id;
+                wrapper.dataset.index = index.toString();
+                
+                // Drag and drop event listeners
+                wrapper.addEventListener('dragstart', (e: DragEvent) => {
+                    draggedItem = field.id;
+                    wrapper.classList.add('opacity-50', 'border-indigo-400');
+                    e.dataTransfer!.effectAllowed = 'move';
+                });
+                
+                wrapper.addEventListener('dragend', () => {
+                    draggedItem = null;
+                    wrapper.classList.remove('opacity-50', 'border-indigo-400');
+                    // Remove drag-over styles from all wrappers
+                    document.querySelectorAll('.dynamic-field-wrapper').forEach(el => {
+                        el.classList.remove('border-indigo-400', 'bg-indigo-50');
+                    });
+                });
+                
+                wrapper.addEventListener('dragover', (e: DragEvent) => {
+                    e.preventDefault();
+                    e.dataTransfer!.dropEffect = 'move';
+                    if (draggedItem !== field.id) {
+                        wrapper.classList.add('border-indigo-400', 'bg-indigo-50');
+                    }
+                });
+                
+                wrapper.addEventListener('dragleave', () => {
+                    wrapper.classList.remove('border-indigo-400', 'bg-indigo-50');
+                });
+                
+                wrapper.addEventListener('drop', (e: DragEvent) => {
+                    e.preventDefault();
+                    wrapper.classList.remove('border-indigo-400', 'bg-indigo-50');
+                    
+                    if (draggedItem && draggedItem !== field.id) {
+                        const draggedIndex = componentFields.findIndex(f => f.id === draggedItem);
+                        const targetIndex = index;
+                        
+                        // Reorder array
+                        const [removed] = componentFields.splice(draggedIndex, 1);
+                        componentFields.splice(targetIndex, 0, removed);
+                        
+                        renderComponent();
+                    }
+                });
                 
                 // Header Field (Label & Tombol Aksi)
                 let fieldHeaderHTML = `
                     <div class="flex justify-between items-center mb-1.5">
-                        <label class="block text-sm font-medium text-gray-700">
-                            ${field.title} 
-                            ${field.required ? '<span class="text-red-500">*</span>' : ''}
-                            <span class="text-xs font-normal text-gray-400 ml-1">(${field.type})</span>
-                        </label>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-400 cursor-grab" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                            <label class="block text-sm font-medium text-gray-700">
+                                ${field.title} 
+                                ${field.required ? '<span class="text-red-500">*</span>' : ''}
+                                <span class="text-xs font-normal text-gray-400 ml-1">(${field.type})</span>
+                            </label>
+                        </div>
                         <button onclick="deleteField('${field.id}')" type="button" class="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-1 rounded-md hover:bg-gray-100">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>

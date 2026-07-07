@@ -16,6 +16,11 @@ import Layout from '../../layouts/Layout.astro';
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Field
               </button>
             </div>
+            <div class="p-4 border-b border-slate-100 bg-slate-50/30">
+              <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Component Name (Parent Title)</label>
+              <input type="text" id="componentName" value="My Component" placeholder="Enter component name..."
+                  class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-hidden focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition font-medium">
+            </div>
 
             <!-- Fields List Area -->
             <div id="fieldsContainer" class="p-6 overflow-y-auto flex-1 space-y-4">
@@ -37,7 +42,7 @@ import Layout from '../../layouts/Layout.astro';
             <div class="bg-white rounded-xl border border-slate-200 shadow-xs flex flex-col flex-1 overflow-hidden">
               <div class="p-4 border-b border-slate-200 bg-slate-50/50">
                 <h2 class="font-semibold text-slate-700 flex items-center gap-2">
-                  <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i> Live Component Preview
+                  <i data-lucide="eye" class="w-4 h-4 text-slate-500"></i> <span id="previewTitle">My Component</span>
                 </h2>
               </div>
               <div class="p-6 overflow-y-auto flex-1 bg-slate-50/30">
@@ -135,12 +140,24 @@ import Layout from '../../layouts/Layout.astro';
     <script>
       // State Management
       let fields: any[] = [];
+      let draggedItem: string | null = null;
 
       // Initialize Lucide Icons
       document.addEventListener("DOMContentLoaded", () => {
         if (typeof (window as any).lucide !== 'undefined') {
           (window as any).lucide.createIcons();
         }
+        
+        // Setup component name sync
+        const componentName = document.getElementById('componentName') as HTMLInputElement;
+        const previewTitle = document.getElementById('previewTitle');
+        if (componentName && previewTitle) {
+          componentName.addEventListener('input', (e: Event) => {
+            const target = e.target as HTMLInputElement;
+            previewTitle.textContent = target.value || 'My Component';
+          });
+        }
+        
         updateUI();
       });
 
@@ -282,11 +299,62 @@ import Layout from '../../layouts/Layout.astro';
         }
         emptyState.classList.add('hidden');
 
-        fields.forEach((field) => {
+        fields.forEach((field, index) => {
           const div = document.createElement('div');
-          div.className = 'field-card bg-slate-50 border border-slate-200 rounded-lg p-4 flex justify-between items-center hover:border-slate-300 transition group';
+          div.className = 'field-card bg-slate-50 border border-slate-200 rounded-lg p-4 flex justify-between items-center hover:border-slate-300 transition group cursor-move';
+          div.setAttribute('draggable', 'true');
+          div.dataset.id = field.id;
+          div.dataset.index = index.toString();
+          
+          // Drag and drop event listeners
+          div.addEventListener('dragstart', (e: DragEvent) => {
+            draggedItem = field.id;
+            div.classList.add('opacity-50', 'border-indigo-400', 'bg-indigo-50');
+            e.dataTransfer!.effectAllowed = 'move';
+          });
+          
+          div.addEventListener('dragend', () => {
+            draggedItem = null;
+            div.classList.remove('opacity-50', 'border-indigo-400', 'bg-indigo-50');
+            // Remove drag-over styles from all cards
+            document.querySelectorAll('.field-card').forEach(el => {
+              el.classList.remove('border-indigo-400', 'bg-indigo-50');
+            });
+          });
+          
+          div.addEventListener('dragover', (e: DragEvent) => {
+            e.preventDefault();
+            e.dataTransfer!.dropEffect = 'move';
+            if (draggedItem !== field.id) {
+              div.classList.add('border-indigo-400', 'bg-indigo-50');
+            }
+          });
+          
+          div.addEventListener('dragleave', () => {
+            div.classList.remove('border-indigo-400', 'bg-indigo-50');
+          });
+          
+          div.addEventListener('drop', (e: DragEvent) => {
+            e.preventDefault();
+            div.classList.remove('border-indigo-400', 'bg-indigo-50');
+            
+            if (draggedItem && draggedItem !== field.id) {
+              const draggedIndex = fields.findIndex(f => f.id === draggedItem);
+              const targetIndex = index;
+              
+              // Reorder array
+              const [removed] = fields.splice(draggedIndex, 1);
+              fields.splice(targetIndex, 0, removed);
+              
+              updateUI();
+            }
+          });
+          
           div.innerHTML = `
             <div class="flex items-center gap-3">
+              <div class="bg-white p-2 rounded-md border border-slate-200 text-slate-500 shadow-2xs cursor-grab">
+                <i data-lucide="grip-vertical" class="w-4 h-4"></i>
+              </div>
               <div class="bg-white p-2 rounded-md border border-slate-200 text-slate-500 shadow-2xs">
                 ${getTypeIcon(field.type)}
               </div>
