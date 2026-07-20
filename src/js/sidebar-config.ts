@@ -53,6 +53,14 @@ export const sidebarConfig = {
       icon: 'tune',
       parentId: null,
       children: []
+    },,
+    {
+      id: 'landing',
+      name: 'Landing Animation',
+      url: '/landing-animation',
+      icon: 'tune',
+      parentId: null,
+      children: []
     }
   ] as MenuItem[],
   
